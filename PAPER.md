@@ -45,25 +45,33 @@ The core compute engine integrates two tightly coupled modules (`rtl/`):
 
 ![Figure 1: FMA Pipeline Timing](figures/fig1_fma_pipeline_timing.png)
 
-### 2.1 6-Stage 2.0 GHz True-FMA Pipeline
+### 2.1 6-Stage 2.0 GHz True-FMA Pipeline with FTZ / Denormal Bypass
 
-To achieve a 2.0 GHz clock frequency ($T_{clk} = 500\,\text{ps}$) in ASAP7 7nm FinFET, the datapath is balanced across 6 pipeline stages:
-- **Stage 1 (Unpack & Exponent Difference):** Unpacks IEEE-754 FP16/FP32 fields ($S, E, M$). Computes exponent difference $\Delta E = E_{add} - (E_A + E_B)$ and determines swap condition for alignment.
-- **Stage 2 (Radix-4 Booth Multiplication):** Generates partial products using Radix-4 modified Booth recoding, reducing the multiplier tree depth:
+To achieve a 2.0 GHz clock frequency ($T_{clk} = 500\,\text{ps}$) in ASAP7 7nm FinFET, the datapath is balanced across 6 pipeline stages (`rtl/ara_multicore_true_fma_6stage.sv`):
+- **Stage 1 (Unpack, Exponent Difference & FTZ Bypass):** Unpacks IEEE-754 fields ($S, E, M$). Computes exponent difference $\Delta E = E_{add} - (E_A + E_B)$ and determines operand swap for alignment. When **Flush-to-Zero (FTZ)** mode is asserted (for high-throughput AI inference), subnormal inputs ($E = 0, M \ne 0$) are flushed to signed zero in 0 cycles, bypassing expensive subnormal unpacking. In full IEEE-754 mode, subnormals are preserved and unpacked with unbiased exponents.
+- **Stage 2 (Radix-4 Booth Multiplier Tree):** Generates partial products using Radix-4 modified Booth recoding, reducing multiplier tree depth:
 $$P_k \in \{-2B, -B, 0, +B, +2B\}$$
-Produces a redundant Carry-Save (CS) representation of $A \times B$.
-- **Stage 3 (Alignment & Leading-Zero Anticipation):** Shifts the addend mantissa $M_C$ by $\Delta E$ positions across a 48-bit barrel shifter. Concurrently, the **Leading-Zero Anticipator (LZA)** evaluates the prospective sum string to predict the leading one's position in parallel with the adder.
-- **Stage 4 (48-bit Wide Adder Tree):** A 48-bit carry-propagate adder fuses the aligned addend with the Carry-Save multiplier output without truncating lower guard bits.
-- **Stage 5 (Normalization):** Dynamically normalizes the 48-bit sum using the pre-computed shift count from the LZA, performing subnormal handling in a single cycle.
+Produces a redundant Carry-Save (CS) representation of $A \times B$ across 16-bit, 32-bit, or dual 8-bit operands.
+- **Stage 3 (Alignment & Concurrent Leading-Zero Anticipation):** Shifts the addend mantissa $M_C$ by $\Delta E$ positions across a 48-bit barrel shifter. Concurrently, the **Leading-Zero Anticipator (LZA)** evaluates prospective bit transitions to predict the normalized leading one's position in parallel with the adder.
+- **Stage 4 (48-bit Wide Adder Tree):** A 48-bit carry-propagate adder fuses the aligned addend with the Carry-Save multiplier output without intermediate truncation.
+- **Stage 5 (Normalization & Denormal Handling):** Dynamically shifts the 48-bit sum using the pre-computed shift count from the LZA. Under FTZ mode, intermediate underflows are clamped directly to zero. Under IEEE-754 compliance mode, the datapath dynamically shifts subnormal results with precise exponent adjustment and sticky bit evaluation.
 - **Stage 6 (Single-Pass RNE Rounder & Output Pack):** Evaluates Guard ($G$), Round ($R$), and Sticky ($S$) bits:
-$$Sticky = \bigvee_{i=0}^{k} M_i$$
-Executes Round-to-Nearest-Even (RNE), quiet NaN ($qNaN$) propagation, signed zero preservation, and packs the final floating-point word.
+$$S = \bigvee_{i=0}^{k} M_i$$
+The hardware asserts the round-up strobe according to exact **Round-to-Nearest-Even (RNE)** semantics:
+$$Round = G \cdot (R \vee S \vee M_0)$$
+where $M_0$ is the least significant bit of the unrounded mantissa (breaking ties to even). Handles quiet NaN ($qNaN$) propagation, signed zero preservation, and packs the final floating-point word.
+
+The True-FMA datapath dynamically reconfigures across four numeric precisions:
+1. **FP32:** Single precision ($1 \times 24 \times 24$ mantissa MAC).
+2. **FP16:** Half precision ($2 \times 11 \times 11$ mantissa MAC, exact 22-bit product).
+3. **BF16:** Brain floating-point ($2 \times 8 \times 8$ mantissa MAC).
+4. **FP8 (E4M3 / E5M2):** Ultra-dense dual-issue mode ($4 \times$ SIMD operations per cycle).
 
 As shown in Figure 1, every stage exhibits positive timing slack, ranging from $+65\,\text{ps}$ (Stage 2) to $+190\,\text{ps}$ (Stage 1), ensuring zero timing violations at 2.0 GHz across worst-case PVT corners (SS, 0.72V, 105°C).
 
 ### 2.2 16x16 2D Systolic Tensor Matrix Engine
 
-For dense matrix multiplication ($GEMM: C = A \cdot B + C$), vector execution units typically suffer from register file port pressure. Ara-Core incorporates a **16x16 2D Systolic Array** (`ara_systolic_tensor_unit.sv`) comprising 256 Processing Elements (PEs).
+For dense matrix multiplication ($GEMM: C = A \cdot B + C$), vector execution units typically suffer from register file port pressure. Ara-Core incorporates a **16x16 2D Systolic Array** (`rtl/ara_systolic_tensor_unit.sv`) comprising 256 Processing Elements (PEs).
 
 ```
           B[0,0]    B[0,1]    B[0,2]    B[0,3]
@@ -80,6 +88,12 @@ Key architectural features include:
 - **Peak Compute Density:**
 $$Throughput_{systolic} = 16 \times 16 \times 2 \frac{\text{FLOPs}}{\text{cycle}} \times 2.0 \text{ GHz} = 1.024 \text{ TFLOPS FP16}$$
 In FP8 dual-issue mode, throughput doubles to **2.048 TFLOPS**.
+
+### 2.3 32-Bank Conflict-Free L1 TCDM Memory Interface
+
+To prevent operand starvation, Ara-Core connects directly to a shared **32-bank 512 KB L1 Tightly-Coupled Data Memory (TCDM)** crossbar. Operating at the core clock frequency ($2.0\,\text{GHz}$), the crossbar provides 16 parallel 64-bit load/store ports delivering **256 GB/s local memory bandwidth**:
+$$BW_{L1} = 32 \text{ banks} \times 4 \text{ Bytes/bank} \times 2.0 \text{ GHz} = 256.0 \text{ GB/s}$$
+Coupled with XOR-hashing bank permutation, the crossbar delivers uninterrupted operand streams directly to the 16x16 systolic array without stalling the 6-stage True-FMA pipelines.
 
 ---
 
