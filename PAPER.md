@@ -40,8 +40,8 @@ To resolve these challenges, Ara-Core re-architects the vector execution pipelin
 ## 2. Microarchitecture & Silicon Co-Design
 
 The core compute engine integrates two tightly coupled modules (`rtl/`):
-1. `ara_multicore_true_fma_6stage.sv`: 6-Stage 2.0 GHz True-FMA pipeline.
-2. `ara_systolic_tensor_unit.sv`: 16x16 2D Systolic Tensor Matrix Engine.
+1. `rtl/ara_multicore_true_fma_6stage.sv`: 6-Stage 2.0 GHz True-FMA pipeline.
+2. `rtl/ara_systolic_tensor_unit.sv`: 16x16 2D Systolic Tensor Matrix Engine.
 
 ![Figure 1: FMA Pipeline Timing](figures/fig1_fma_pipeline_timing.png)
 
