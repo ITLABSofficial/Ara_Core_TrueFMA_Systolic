@@ -1,6 +1,7 @@
 # Ara-Core: 2.0 GHz 6-Stage True-FMA & 16x16 Systolic Matrix Engine
 
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
+[![Academic Paper](https://img.shields.io/badge/Research_Paper-Read_PAPER.md-blueviolet.svg)](PAPER.md)
 [![Clock](https://img.shields.io/badge/Target_Clock-2.0_GHz-brightgreen.svg)]()
 [![Standard](https://img.shields.io/badge/Precision-IEEE--754_FP32%2FFP16%2FBF16-blue.svg)]()
 [![Rounding](https://img.shields.io/badge/Rounding-Round_to_Nearest_Even_(RNE)-purple.svg)]()
