@@ -1,0 +1,13 @@
+[options]
+mode bmc
+depth 6
+
+[engines]
+smtbmc z3
+
+[script]
+read -formal ara_multicore_true_fma_6stage.sv
+prep -top ara_multicore_true_fma_6stage
+
+[files]
+rtl/ara_multicore_true_fma_6stage.sv

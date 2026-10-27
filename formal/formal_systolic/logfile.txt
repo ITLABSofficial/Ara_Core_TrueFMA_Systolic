@@ -1,0 +1,53 @@
+SBY 19:32:28 [formal/formal_systolic] Removing directory '/run/media/it/WD_HDD/Sierra hmb bellekler/show/Ara_MultiCore_WSE_HBM3/formal/formal_systolic'.
+SBY 19:32:28 [formal/formal_systolic] Copy '/run/media/it/WD_HDD/Sierra hmb bellekler/show/Ara_MultiCore_WSE_HBM3/rtl/ara_multicore_true_fma_6stage.sv' to '/run/media/it/WD_HDD/Sierra hmb bellekler/show/Ara_MultiCore_WSE_HBM3/formal/formal_systolic/src/ara_multicore_true_fma_6stage.sv'.
+SBY 19:32:28 [formal/formal_systolic] Copy '/run/media/it/WD_HDD/Sierra hmb bellekler/show/Ara_MultiCore_WSE_HBM3/rtl/ara_systolic_tensor_unit.sv' to '/run/media/it/WD_HDD/Sierra hmb bellekler/show/Ara_MultiCore_WSE_HBM3/formal/formal_systolic/src/ara_systolic_tensor_unit.sv'.
+SBY 19:32:28 [formal/formal_systolic] engine_0: smtbmc z3
+SBY 19:32:28 [formal/formal_systolic] base: starting process "cd formal/formal_systolic/src; yosys -ql ../model/design.log ../model/design.ys"
+SBY 19:32:28 [formal/formal_systolic] base: Warning: Replacing memory \row_fifo_mem with list of registers. See ara_systolic_tensor_unit.sv:361
+SBY 19:32:28 [formal/formal_systolic] base: Warning: Replacing memory \acc_tile_q with list of registers. See ara_systolic_tensor_unit.sv:360
+SBY 19:32:28 [formal/formal_systolic] base: Warning: Replacing memory \acc_tile_d with list of registers. See ara_systolic_tensor_unit.sv:195
+SBY 19:32:29 [formal/formal_systolic] base: Warning: Replacing memory \int_tree_l3 with list of registers. See ara_multicore_true_fma_6stage.sv:955
+SBY 19:32:29 [formal/formal_systolic] base: Warning: Replacing memory \int_tree_l2 with list of registers. See ara_multicore_true_fma_6stage.sv:952
+SBY 19:32:29 [formal/formal_systolic] base: Warning: Replacing memory \int_tree_l1 with list of registers. See ara_multicore_true_fma_6stage.sv:949
+SBY 19:32:29 [formal/formal_systolic] base: Warning: Replacing memory \lane_flags with list of registers. See ara_multicore_true_fma_6stage.sv:885
+SBY 19:32:29 [formal/formal_systolic] base: Warning: Replacing memory \lane_res with list of registers. See ara_multicore_true_fma_6stage.sv:884
+SBY 19:32:29 [formal/formal_systolic] base: Warning: Replacing memory \pipe_data_fmt_q with list of registers. See ara_multicore_true_fma_6stage.sv:181
+SBY 19:32:29 [formal/formal_systolic] base: Warning: Replacing memory \tree_lvl3 with list of registers. See ara_multicore_true_fma_6stage.sv:929
+SBY 19:32:29 [formal/formal_systolic] base: Warning: Replacing memory \tree_lvl2 with list of registers. See ara_multicore_true_fma_6stage.sv:922
+SBY 19:32:29 [formal/formal_systolic] base: Warning: Replacing memory \tree_lvl1 with list of registers. See ara_multicore_true_fma_6stage.sv:915
+SBY 19:32:41 [formal/formal_systolic] base: finished (returncode=0)
+SBY 19:32:41 [formal/formal_systolic] prep: starting process "cd formal/formal_systolic/model; yosys -ql design_prep.log design_prep.ys"
+SBY 19:32:44 [formal/formal_systolic] prep: finished (returncode=0)
+SBY 19:32:44 [formal/formal_systolic] smt2: starting process "cd formal/formal_systolic/model; yosys -ql design_smt2.log design_smt2.ys"
+SBY 19:32:45 [formal/formal_systolic] smt2: finished (returncode=0)
+SBY 19:32:45 [formal/formal_systolic] engine_0: starting process "cd formal/formal_systolic; yosys-smtbmc -s z3 --presat --noprogress -t 10  --append 0 --dump-vcd engine_0/trace.vcd --dump-yw engine_0/trace.yw --dump-vlogtb engine_0/trace_tb.v --dump-smtc engine_0/trace.smtc model/design_smt2.smt2"
+SBY 19:32:45 [formal/formal_systolic] engine_0: ##   0:00:00  Solver: z3
+SBY 19:32:45 [formal/formal_systolic] engine_0: ##   0:00:00  Checking assumptions in step 0..
+SBY 19:32:46 [formal/formal_systolic] engine_0: ##   0:00:00  Checking assertions in step 0..
+SBY 19:32:46 [formal/formal_systolic] engine_0: ##   0:00:00  Checking assumptions in step 1..
+SBY 19:32:46 [formal/formal_systolic] engine_0: ##   0:00:00  Checking assertions in step 1..
+SBY 19:32:46 [formal/formal_systolic] engine_0: ##   0:00:00  Checking assumptions in step 2..
+SBY 19:32:46 [formal/formal_systolic] engine_0: ##   0:00:01  Checking assertions in step 2..
+SBY 19:32:46 [formal/formal_systolic] engine_0: ##   0:00:01  Checking assumptions in step 3..
+SBY 19:32:46 [formal/formal_systolic] engine_0: ##   0:00:01  Checking assertions in step 3..
+SBY 19:32:46 [formal/formal_systolic] engine_0: ##   0:00:01  Checking assumptions in step 4..
+SBY 19:32:46 [formal/formal_systolic] engine_0: ##   0:00:01  Checking assertions in step 4..
+SBY 19:32:46 [formal/formal_systolic] engine_0: ##   0:00:01  Checking assumptions in step 5..
+SBY 19:32:50 [formal/formal_systolic] engine_0: ##   0:00:05  Checking assertions in step 5..
+SBY 19:32:51 [formal/formal_systolic] engine_0: ##   0:00:05  Checking assumptions in step 6..
+SBY 19:32:53 [formal/formal_systolic] engine_0: ##   0:00:07  Checking assertions in step 6..
+SBY 19:32:53 [formal/formal_systolic] engine_0: ##   0:00:08  Checking assumptions in step 7..
+SBY 19:32:59 [formal/formal_systolic] engine_0: ##   0:00:14  Checking assertions in step 7..
+SBY 19:33:00 [formal/formal_systolic] engine_0: ##   0:00:14  Checking assumptions in step 8..
+SBY 19:33:57 [formal/formal_systolic] engine_0: ##   0:01:12  Checking assertions in step 8..
+SBY 19:33:58 [formal/formal_systolic] engine_0: ##   0:01:13  Checking assumptions in step 9..
+SBY 19:34:58 [formal/formal_systolic] engine_0: ##   0:02:13  waiting for solver (1 minute)
+SBY 19:35:38 [formal/formal_systolic] engine_0: ##   0:02:53  Checking assertions in step 9..
+SBY 19:35:41 [formal/formal_systolic] engine_0: ##   0:02:56  Status: passed
+SBY 19:35:41 [formal/formal_systolic] engine_0: finished (returncode=0)
+SBY 19:35:41 [formal/formal_systolic] engine_0: Status returned by engine: pass
+SBY 19:35:41 [formal/formal_systolic] summary: Elapsed clock time [H:MM:SS (secs)]: 0:03:12 (192)
+SBY 19:35:41 [formal/formal_systolic] summary: Elapsed process time [H:MM:SS (secs)]: 0:03:12 (192)
+SBY 19:35:41 [formal/formal_systolic] summary: engine_0 (smtbmc z3) returned pass
+SBY 19:35:41 [formal/formal_systolic] summary: engine_0 did not produce any traces
+SBY 19:35:41 [formal/formal_systolic] DONE (PASS, rc=0)

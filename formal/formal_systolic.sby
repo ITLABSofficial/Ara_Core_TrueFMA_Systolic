@@ -1,0 +1,15 @@
+[options]
+mode bmc
+depth 10
+
+[engines]
+smtbmc z3
+
+[script]
+read -formal ara_multicore_true_fma_6stage.sv
+read -formal ara_systolic_tensor_unit.sv
+prep -top ara_systolic_tensor_unit
+
+[files]
+rtl/ara_multicore_true_fma_6stage.sv
+rtl/ara_systolic_tensor_unit.sv
